@@ -14,12 +14,21 @@ export default function BlogPostCard({ post, postType }) {
     const isUpcoming = post.date ? new Date(post.date) > new Date() : false;
 
     // Format timestamp for display
-    const timestamp = post.createdAt ?
-        new Date(post.createdAt.toDate()).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }) : "Recent";
+    const timestamp = post.createdAt
+        ? typeof post.createdAt.toDate === 'function'
+            // Handle Firestore timestamp
+            ? new Date(post.createdAt.toDate()).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            })
+            // Handle ISO string or other date format
+            : new Date(post.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            })
+        : "No date";
 
     return (
         <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">

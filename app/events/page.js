@@ -12,6 +12,23 @@ const eventsListCache = {
     timestamp: null
 };
 
+function prepareListDataForCache(items) {
+    return items.map(item => {
+        const processedItem = { ...item };
+
+        // Convert any timestamps to ISO strings
+        if (processedItem.date && typeof processedItem.date.toDate === 'function') {
+            processedItem.date = processedItem.date.toDate().toISOString();
+        }
+
+        if (processedItem.createdAt && typeof processedItem.createdAt.toDate === 'function') {
+            processedItem.createdAt = processedItem.createdAt.toDate().toISOString();
+        }
+
+        return processedItem;
+    });
+}
+
 const dmSerifDisplay = DM_Serif_Display({
     weight: "400",
     subsets: ["latin"],
@@ -72,7 +89,7 @@ export default function EventsPage() {
                 });
 
                 // Update cache
-                eventsListCache.data = eventsList;
+                eventsListCache.data = prepareListDataForCache(eventsList);
                 eventsListCache.timestamp = now;
 
                 // Save cache to localStorage

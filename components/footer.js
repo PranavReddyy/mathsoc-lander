@@ -101,7 +101,7 @@ export function PageFooter() {
                             © 2025 MathSoc, Mahindra University. All rights reserved.
                         </p>
                         <a
-                            href="https://github.com/RogueArt/mathsoc"
+                            href="https://github.com/PranavReddyy/mathsoc-lander"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors"

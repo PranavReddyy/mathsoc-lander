@@ -5,6 +5,20 @@ import Image from 'next/image';
 import { DM_Serif_Display, Source_Serif_4 } from "next/font/google";
 import { motion } from "framer-motion";
 import { Play, Pause, Volume2, VolumeX, ImageIcon, Film } from "lucide-react";
+import Masonry from 'react-masonry-css';
+
+const masonryStyles = `
+.my-masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -16px; /* gutter size offset */
+}
+.my-masonry-grid_column {
+  padding-left: 16px; /* gutter size */
+  background-clip: padding-box;
+}
+`;
+
 
 // Import the fonts
 const dmSerifDisplay = DM_Serif_Display({
@@ -54,12 +68,12 @@ const generateInfiniteGallery = (originalItems, multiplier = 10) => {
 };
 
 // Video component with play/pause and mute controls
-function VideoItem({ src, poster, caption }) {
+function VideoItem({ src, poster, caption, width, height }) {
     const videoRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [hasError, setHasError] = useState(false);
-
+    const aspectRatio = width && height ? width / height : 16 / 9;
     // Set up Intersection Observer to play/pause video based on visibility
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -114,7 +128,7 @@ function VideoItem({ src, poster, caption }) {
     };
 
     return (
-        <div className="relative group overflow-hidden rounded-lg h-full aspect-video bg-slate-200 dark:bg-slate-800">
+        <div className="relative group overflow-hidden rounded-lg h-full bg-slate-200 dark:bg-slate-800">
             {hasError ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-200 dark:bg-slate-800">
                     <Film size={40} className="text-slate-400 dark:text-slate-600 mb-2" />
@@ -151,8 +165,6 @@ function VideoItem({ src, poster, caption }) {
                                 {isPlaying ? <Pause size={16} /> : <Play size={16} />}
                             </button>
 
-                            <p className="text-sm font-medium px-2 line-clamp-1 text-center flex-1">{caption}</p>
-
                             <button
                                 onClick={toggleMute}
                                 className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
@@ -172,6 +184,9 @@ function VideoItem({ src, poster, caption }) {
 function ImageItem({ src, alt, width, height, caption }) {
     const [imageError, setImageError] = useState(false);
 
+    // Calculate aspect ratio for proper sizing
+    const aspectRatio = width && height ? width / height : 1.5;
+
     return (
         <div className="relative group overflow-hidden rounded-lg h-full bg-slate-200 dark:bg-slate-800">
             {imageError ? (
@@ -181,18 +196,15 @@ function ImageItem({ src, alt, width, height, caption }) {
                 </div>
             ) : (
                 <>
-                    <Image
-                        src={src}
-                        alt={alt || "Gallery image"}
-                        width={width || 800}
-                        height={height || 600}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        onError={() => setImageError(true)}
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                        <p className="text-white text-sm">{caption}</p>
+                    <div style={{ paddingBottom: `${(1 / aspectRatio) * 100}%` }} className="relative w-full">
+                        <Image
+                            src={src}
+                            alt={alt || "Gallery image"}
+                            fill
+                            className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-105"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            onError={() => setImageError(true)}
+                        />
                     </div>
                 </>
             )}
@@ -240,6 +252,8 @@ function GalleryModal({ item, isOpen, onClose }) {
                             src={item.src}
                             poster={item.poster}
                             caption={item.caption}
+                            width={item.width}
+                            height={item.height}
                         />
                     </div>
                 ) : (
@@ -251,9 +265,6 @@ function GalleryModal({ item, isOpen, onClose }) {
                             height={item.height || 800}
                             className="max-h-[80vh] w-auto object-contain"
                         />
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4">
-                            <p className="text-white text-sm md:text-base">{item.caption}</p>
-                        </div>
                     </div>
                 )}
                 <button
@@ -363,6 +374,7 @@ export default function GalleryPage() {
 
     return (
         <div className="min-h-screen">
+            <style jsx>{masonryStyles}</style>
             {/* Hero Section */}
             <section className="py-16 md:py-24 px-6">
                 <div className="max-w-4xl mx-auto text-center">
@@ -385,20 +397,23 @@ export default function GalleryPage() {
                     )}
 
                     {/* Masonry Grid */}
-                    <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
+                    <Masonry
+                        breakpointCols={{
+                            default: 4,
+                            1100: 3,
+                            700: 2,
+                            500: 1
+                        }}
+                        className="my-masonry-grid"
+                        columnClassName="my-masonry-grid_column"
                     >
                         {galleryData.slice(0, visibleCount).map((item, index) => {
-                            // Unique key combining id and position
                             const itemKey = `gallery-item-${item.id}-pos${index}`;
 
                             return (
                                 <motion.div
                                     key={itemKey}
-                                    className={`overflow-hidden cursor-pointer ${index % 5 === 0 ? 'row-span-2' : ''}`}
+                                    className="mb-4 overflow-hidden cursor-pointer"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: Math.min(index % 12 * 0.05, 0.5) }}
@@ -408,6 +423,7 @@ export default function GalleryPage() {
                                         <VideoItem
                                             src={item.src}
                                             poster={item.poster}
+                                            caption={item.caption}
                                         />
                                     ) : (
                                         <ImageItem
@@ -415,12 +431,13 @@ export default function GalleryPage() {
                                             alt={item.alt}
                                             width={item.width}
                                             height={item.height}
+                                            caption={item.caption}
                                         />
                                     )}
                                 </motion.div>
                             );
                         })}
-                    </motion.div>
+                    </Masonry>
 
                     {/* Loading indicator */}
                     <div

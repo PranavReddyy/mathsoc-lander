@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
-import Image from "next/image";
 import { Button } from "../../../components/ui/button";
+import Image from "next/image";
 import { Calendar, Clock, MapPin, Tag, User, ArrowLeft } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel";
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 hour in milliseconds
@@ -14,12 +14,38 @@ const eventCache = {
     timestamp: {}
 };
 
+function prepareDataForCache(data) {
+    const processedData = { ...data }; // Create a shallow copy
+
+    // Process Firestore timestamps
+    if (processedData.date && typeof processedData.date.toDate === 'function') {
+        processedData.date = processedData.date.toDate().toISOString();
+    }
+
+    return processedData;
+}
+
 export default function EventDetailPage() {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const router = useRouter();
-    const { slug } = useParams();
+    const params = useParams();
+    const slug = params?.slug;
+
+    const pageTitle = slug ?
+        slug.split('-').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ') + ' | MathSoc' :
+        'MathSoc Events';
+
+    useEffect(() => {
+        if (event?.title) {
+            document.title = `${event.title} | MathSoc Events`;
+        } else if (pageTitle) {
+            document.title = pageTitle;
+        }
+    }, [event, pageTitle]);
 
     useEffect(() => {
         // Initialize cache from localStorage when component mounts
@@ -67,7 +93,8 @@ export default function EventDetailPage() {
                 };
 
                 // Update cache
-                eventCache.data[slug] = eventData;
+                const processedData = prepareDataForCache(eventData);
+                eventCache.data[slug] = processedData;
                 eventCache.timestamp[slug] = now;
 
                 // Save cache to localStorage
@@ -92,15 +119,28 @@ export default function EventDetailPage() {
     }, [slug]);
 
     // Format date for display
-    const formattedDate = event?.date ? new Date(event.date).toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    }) : null;
+    const formattedDate = event?.date ?
+        (typeof event.date.toDate === 'function'
+            ? new Date(event.date.toDate()).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            })
+            : new Date(event.date).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            })
+        ) : null;
 
     // Check if event is upcoming
-    const isUpcoming = event?.date ? new Date(event.date) > new Date() : false;
+    const isUpcoming = event?.date ?
+        (typeof event.date.toDate === 'function'
+            ? new Date(event.date.toDate()) > new Date()
+            : new Date(event.date) > new Date())
+        : false;
 
     if (loading) {
         return (

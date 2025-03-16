@@ -6,7 +6,7 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import Image from "next/image";
 import { Button } from "../../../../components/ui/button";
-import { ArrowLeft, User, Tag, Clock } from "lucide-react";
+import { ArrowLeft, User, Tag, Calendar } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../../components/ui/carousel";
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 hour in milliseconds
 const communityCache = {
@@ -14,12 +14,48 @@ const communityCache = {
     timestamp: {}
 };
 
+function prepareDataForCache(data) {
+    const processedData = { ...data }; // Create a shallow copy
+
+    // Process Firestore timestamps
+    if (processedData.createdAt && typeof processedData.createdAt.toDate === 'function') {
+        processedData.createdAt = processedData.createdAt.toDate().toISOString();
+    }
+
+    // Process event date timestamp (check both possible field names)
+    if (processedData.date && typeof processedData.date.toDate === 'function') {
+        processedData.date = processedData.date.toDate().toISOString();
+    }
+
+    if (processedData.eventDate && typeof processedData.eventDate.toDate === 'function') {
+        processedData.eventDate = processedData.eventDate.toDate().toISOString();
+    }
+
+    return processedData;
+}
+
 export default function CommunityServiceDetailPage() {
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const params = useParams();
     const router = useRouter();
-    const { slug } = useParams();
+    const slug = params?.slug;
+
+    const pageTitle = slug ?
+        slug.split('-').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ') + ' | MathSoc' :
+        'MathSoc Community Service';
+
+    useEffect(() => {
+        if (post?.title) {
+            document.title = `${post.title} | MathSoc Community Service`;
+        } else if (pageTitle) {
+            document.title = pageTitle;
+        }
+    }, [post, pageTitle]);
+
 
     useEffect(() => {
         // Initialize cache from localStorage when component mounts
@@ -67,7 +103,8 @@ export default function CommunityServiceDetailPage() {
                 };
 
                 // Update cache
-                communityCache.data[slug] = postData;
+                const processedData = prepareDataForCache(postData);
+                communityCache.data[slug] = processedData;
                 communityCache.timestamp[slug] = now;
 
                 // Save cache to localStorage
@@ -91,12 +128,38 @@ export default function CommunityServiceDetailPage() {
         }
     }, [slug]);
 
-    // Format timestamp
-    const formattedDate = post?.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    }) : null;
+    // Format timesta
+    const formattedDate = post?.date
+        ? (typeof post.date.toDate === 'function'
+            ? new Date(post.date.toDate()).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            })
+            : new Date(post.date).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            })
+        )
+        : post?.eventDate
+            ? (typeof post.eventDate.toDate === 'function'
+                ? new Date(post.eventDate.toDate()).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                })
+                : new Date(post.eventDate).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                })
+            )
+            : null;
 
     if (loading) {
         return (
@@ -135,8 +198,8 @@ export default function CommunityServiceDetailPage() {
                 <div className="flex flex-wrap gap-4 mb-6">
                     {formattedDate && (
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                            <Clock className="h-4 w-4" />
-                            <span>{formattedDate}</span>
+                            <Calendar className="h-4 w-4" />
+                            <span>{formattedDate}</span> {/* Display the formatted date, not post.eventDate */}
                         </div>
                     )}
 
