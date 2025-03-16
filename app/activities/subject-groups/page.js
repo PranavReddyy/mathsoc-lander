@@ -202,7 +202,7 @@ export default function GroupsPage() {
                         Start Your Mathematical Journey
                     </h2>
                     <p className={`${sourceSerif.className} text-lg text-slate-600 dark:text-slate-300 mb-8`}>
-                        Can't decide which group to join? Attend our next general meeting to learn more about each group's activities and find your perfect fit.
+                        Can&apos;t decide which group to join? Attend our next general meeting to learn more about each group&apos;s activities and find your perfect fit.
                     </p>
                 </div>
             </section>

@@ -67,7 +67,7 @@ export default function CommunityServiceDetailPage() {
         return (
             <div className="max-w-3xl mx-auto px-4 py-12 text-center">
                 <h1 className="text-2xl font-bold text-red-500 mb-4">{error}</h1>
-                <p className="mb-8">The post you're looking for couldn't be found.</p>
+                <p className="mb-8">The post you&apos;re looking for couldn&apos;t be found.</p>
                 <Button onClick={() => router.push("/activities/community-service")}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Community Service
                 </Button>
