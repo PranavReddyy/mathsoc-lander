@@ -8,6 +8,11 @@ import Image from "next/image";
 import { Button } from "../../../components/ui/button";
 import { Calendar, Clock, MapPin, Tag, User, ArrowLeft } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 hour in milliseconds
+const eventCache = {
+    data: {},
+    timestamp: {}
+};
 
 export default function EventDetailPage() {
     const [event, setEvent] = useState(null);
@@ -17,8 +22,35 @@ export default function EventDetailPage() {
     const { slug } = useParams();
 
     useEffect(() => {
+        // Initialize cache from localStorage when component mounts
+        try {
+            const savedCache = localStorage.getItem('eventDetailPageCache');
+            if (savedCache) {
+                const parsedCache = JSON.parse(savedCache);
+                if (parsedCache.data && parsedCache.timestamp) {
+                    eventCache.data = parsedCache.data;
+                    eventCache.timestamp = parsedCache.timestamp;
+                }
+            }
+        } catch (e) {
+            console.error('Error restoring cache:', e);
+        }
+
         async function fetchEvent() {
             try {
+                // Check if we have cached data that's still valid
+                const cachedData = eventCache.data[slug];
+                const cachedTime = eventCache.timestamp[slug];
+                const now = Date.now();
+
+                // Use cached data if it exists and hasn't expired
+                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                    console.log("Using cached event data for:", slug);
+                    setEvent(cachedData);
+                    setLoading(false);
+                    return;
+                }
+
                 const eventsRef = collection(db, "events");
                 const q = query(eventsRef, where("slug", "==", slug), limit(1));
 
@@ -33,6 +65,17 @@ export default function EventDetailPage() {
                     id: querySnapshot.docs[0].id,
                     ...querySnapshot.docs[0].data()
                 };
+
+                // Update cache
+                eventCache.data[slug] = eventData;
+                eventCache.timestamp[slug] = now;
+
+                // Save cache to localStorage
+                try {
+                    localStorage.setItem('eventDetailPageCache', JSON.stringify(eventCache));
+                } catch (e) {
+                    console.error('Error saving cache:', e);
+                }
 
                 setEvent(eventData);
             } catch (error) {

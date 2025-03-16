@@ -8,6 +8,11 @@ import Image from "next/image";
 import { Button } from "../../../../components/ui/button";
 import { ArrowLeft, User, Tag, Clock } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../../components/ui/carousel";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 hour in milliseconds
+const communityCache = {
+    data: {},
+    timestamp: {}
+};
 
 export default function CommunityServiceDetailPage() {
     const [post, setPost] = useState(null);
@@ -17,8 +22,35 @@ export default function CommunityServiceDetailPage() {
     const { slug } = useParams();
 
     useEffect(() => {
+        // Initialize cache from localStorage when component mounts
+        try {
+            const savedCache = localStorage.getItem('communityDetailPageCache');
+            if (savedCache) {
+                const parsedCache = JSON.parse(savedCache);
+                if (parsedCache.data && parsedCache.timestamp) {
+                    communityCache.data = parsedCache.data;
+                    communityCache.timestamp = parsedCache.timestamp;
+                }
+            }
+        } catch (e) {
+            console.error('Error restoring cache:', e);
+        }
+
         async function fetchPost() {
             try {
+                // Check if we have cached data that's still valid
+                const cachedData = communityCache.data[slug];
+                const cachedTime = communityCache.timestamp[slug];
+                const now = Date.now();
+
+                // Use cached data if it exists and hasn't expired
+                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                    console.log("Using cached community service data for:", slug);
+                    setPost(cachedData);
+                    setLoading(false);
+                    return;
+                }
+
                 const postsRef = collection(db, "communitys");
                 const q = query(postsRef, where("slug", "==", slug), limit(1));
 
@@ -33,6 +65,17 @@ export default function CommunityServiceDetailPage() {
                     id: querySnapshot.docs[0].id,
                     ...querySnapshot.docs[0].data()
                 };
+
+                // Update cache
+                communityCache.data[slug] = postData;
+                communityCache.timestamp[slug] = now;
+
+                // Save cache to localStorage
+                try {
+                    localStorage.setItem('communityDetailPageCache', JSON.stringify(communityCache));
+                } catch (e) {
+                    console.error('Error saving cache:', e);
+                }
 
                 setPost(postData);
             } catch (error) {

@@ -6,6 +6,11 @@ import { db } from "../../../lib/firebase";
 import BlogPostCard from "../../../components/BlogPostCard";
 import { Loader2 } from "lucide-react";
 import { DM_Serif_Display, Source_Serif_4 } from "next/font/google";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 hour in milliseconds
+const communityListCache = {
+    data: null,
+    timestamp: null
+};
 
 const dmSerifDisplay = DM_Serif_Display({
     weight: "400",
@@ -25,8 +30,32 @@ export default function CommunityServicePage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Initialize cache from localStorage
+        try {
+            const savedCache = localStorage.getItem('communityListCache');
+            if (savedCache) {
+                const parsedCache = JSON.parse(savedCache);
+                if (parsedCache.data && parsedCache.timestamp) {
+                    communityListCache.data = parsedCache.data;
+                    communityListCache.timestamp = parsedCache.timestamp;
+                }
+            }
+        } catch (e) {
+            console.error('Error restoring cache:', e);
+        }
+
         async function fetchPosts() {
             try {
+                // Check if we have cached data that's still valid
+                const now = Date.now();
+                if (communityListCache.data && communityListCache.timestamp &&
+                    (now - communityListCache.timestamp < CACHE_DURATION)) {
+                    console.log("Using cached community service list data");
+                    setPosts(communityListCache.data);
+                    setLoading(false);
+                    return;
+                }
+
                 // Create a query against the communitys collection, ordered by creation date
                 const postsRef = collection(db, "communitys");
                 const q = query(postsRef, orderBy("createdAt", "desc"));
@@ -41,6 +70,17 @@ export default function CommunityServicePage() {
                         slug: doc.data().slug || doc.id
                     });
                 });
+
+                // Update cache
+                communityListCache.data = postsList;
+                communityListCache.timestamp = now;
+
+                // Save cache to localStorage
+                try {
+                    localStorage.setItem('communityListCache', JSON.stringify(communityListCache));
+                } catch (e) {
+                    console.error('Error saving cache:', e);
+                }
 
                 setPosts(postsList);
             } catch (error) {

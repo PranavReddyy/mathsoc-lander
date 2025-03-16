@@ -161,8 +161,10 @@ const team2024 = [
             {
                 name: "Hinduja",
                 role: "Design Team",
-                image: "/team/2024/hinduja.jpg",
-                email: "se24uari168@mahindrauniversity.edu.in"
+                image: "/team/2024/hinduja2.jpg",
+                instagram: "https://www.instagram.com/hiinduja_",
+                linkedin: "https://www.linkedin.com/in/hinduja-reddy-b87b8932b",
+                email: "hiinduja.13@gmail.com"
             },
             {
                 name: "Nitin Sailapathi",

@@ -173,8 +173,26 @@ export function Navbar() {
         }
     };
 
+    useEffect(() => {
+        const handleRouteChange = () => closeMobileMenu();
+        const handleResize = () => {
+            if (window.innerWidth >= 768 && mobileMenuOpen) {
+                closeMobileMenu();
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('popstate', handleRouteChange);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('popstate', handleRouteChange);
+        };
+    }, [mobileMenuOpen, closeMobileMenu]);
+
+
     return (
-        <div className={`w-full mt-2 sticky top-0 z-50 transition-all duration-300 ${scrolled ? "backdrop-blur-md bg-white/50 dark:bg-slate-900/20 shadow-sm" : "bg-transparent"
+        <div className={`w-full mt-2 sticky top-0 z-[100] transition-all duration-300 ${scrolled ? "backdrop-blur-md bg-white/50 dark:bg-slate-900/20 shadow-sm" : "bg-transparent"
             }`}>
             <div className="mx-4 md:mx-10 flex h-16 items-center justify-between">
                 {/* Logo - left side */}
@@ -375,12 +393,12 @@ export function Navbar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-40"
+                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-[99999]"
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, height: '100vh', width: '100vw' }}
                     >
                         {/* Floating close button */}
                         <motion.button
-                            className="fixed top-6 right-6 p-2 rounded-full bg-slate-50 dark:bg-slate-800 shadow-md dark:shadow-slate-900/40 text-slate-600 dark:text-slate-400 z-50"
-                            onClick={closeMobileMenu}
+                            className="fixed top-6 right-6 p-2 rounded-full bg-slate-50 dark:bg-slate-800 shadow-md dark:shadow-slate-900/40 text-slate-600 dark:text-slate-400 z-[999999]" onClick={closeMobileMenu}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{
                                 opacity: 1,
@@ -404,7 +422,7 @@ export function Navbar() {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="h-full flex flex-col pt-24 px-6 overflow-y-auto"
+                            className="h-full flex flex-col pt-24 px-6 overflow-y-auto z-[9999]"
                         >
                             {/* Logo in mobile menu */}
                             <motion.div variants={itemVariants} className="mb-10">

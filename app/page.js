@@ -209,7 +209,7 @@ function BlackjackGame() {
   }, [totalWins, totalLosses]);
 
   return (
-    <div className="relative w-full max-w-xl mx-auto perspective-1000">
+    <div className="relative w-full mx-auto perspective-1000">
       {/* Game stats - Using light blue accent in dark mode */}
       {/* <div className="absolute top-2 left-0 w-full flex justify-between items-center px-4 py-1 z-10">
         <div className="flex items-center gap-3">
@@ -427,10 +427,6 @@ function BlackjackGame() {
           )}
         </div>
       </div>
-
-      {/* Enhanced blue glow elements for better light/dark aesthetics */}
-      <div className="absolute -top-4 -left-4 w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 blur-2xl opacity-20 dark:opacity-30"></div>
-      <div className="absolute -bottom-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 blur-2xl opacity-20 dark:opacity-30"></div>
     </div>
   );
 }
@@ -467,10 +463,9 @@ export default function Home() {
             </p>
           </div>
           {/* Game Board */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-[90%] sm:max-w-md md:max-w-lg mx-auto overflow-hidden transform scale-[0.85] sm:scale-90 md:scale-100">
             <BlackjackGame />
           </div>
-
         </div>
         {/* Subtle scroll indicator */}
         <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
