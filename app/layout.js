@@ -5,6 +5,7 @@ import { PageFooter } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MathBackground } from "@/components/MathBackground";
 import { Analytics } from "@vercel/analytics/react";
+import { LoadingScreen } from '@/components/laoding-screen';
 
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
+          <LoadingScreen />
           <MathBackground />
           <Navbar />
           {children}
