@@ -3,6 +3,7 @@ import Image from "next/image";
 import { DM_Serif_Display, Source_Serif_4 } from "next/font/google";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 function BlackjackGame() {
   const [deck, setDeck] = useState([]);
@@ -235,7 +236,7 @@ function BlackjackGame() {
           }`}>
           <p className="font-medium">{message}</p>
           {gamePhase === 'gameOver' && (
-            <p className="text-xs mt-1 opacity-80">Press "New Game" to continue</p>
+            <p className="text-xs mt-1 opacity-80">Press &quot;New Game&quot; to continue</p>
           )}
         </div>
 
@@ -414,7 +415,7 @@ function BlackjackGame() {
               disabled
               className="px-7 py-2.5 bg-gradient-to-r from-slate-600/90 to-slate-500/90 rounded-full text-white font-semibold text-sm opacity-70 cursor-not-allowed"
             >
-              Dealer's Turn...
+              Dealer&apos;s Turn...
             </button>
           ) : (
             <button
@@ -566,12 +567,12 @@ export default function Home() {
                 <p className={`${sourceSerif.className} text-slate-700 dark:text-slate-300 mb-5 leading-relaxed`}>
                   We organize regular workshops, competitions, and guest lectures that bring mathematics to life outside the classroom.
                 </p>
-                <a href="/events" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline font-medium group-hover:font-semibold transition-all">
+                <Link href="/events" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline font-medium group-hover:font-semibold transition-all">
                   Explore our events
                   <svg className="ml-2 w-4 h-4 group-hover:ml-3 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -593,12 +594,12 @@ export default function Home() {
                 <p className={`${sourceSerif.className} text-slate-700 dark:text-slate-300 mb-5 leading-relaxed`}>
                   Our specialized interest groups focus on different areas of mathematics, from pure theory to applied problem-solving.
                 </p>
-                <a href="/activities/subject-groups" className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:underline font-medium group-hover:font-semibold transition-all">
+                <Link href="/activities/subject-groups" className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:underline font-medium group-hover:font-semibold transition-all">
                   Join a group
                   <svg className="ml-2 w-4 h-4 group-hover:ml-3 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -620,12 +621,12 @@ export default function Home() {
                 <p className={`${sourceSerif.className} text-slate-700 dark:text-slate-300 mb-5 leading-relaxed`}>
                   We use mathematics to make a positive impact in our community through tutoring, outreach programs, and educational initiatives.
                 </p>
-                <a href="/activities/community-service" className="inline-flex items-center text-violet-600 dark:text-violet-400 hover:underline font-medium group-hover:font-semibold transition-all">
+                <Link href="/activities/community-service" className="inline-flex items-center text-violet-600 dark:text-violet-400 hover:underline font-medium group-hover:font-semibold transition-all">
                   See our impact
                   <svg className="ml-2 w-4 h-4 group-hover:ml-3 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
