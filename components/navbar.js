@@ -49,33 +49,15 @@ export function Navbar() {
     // Prevent body scrolling when mobile menu is open
     useEffect(() => {
         if (mobileMenuOpen) {
-            // Save the current scroll position
-            const scrollY = window.scrollY;
-
-            // When menu opens, fix the body
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = '100%';
+            // Just prevent main content scrolling without changing position
+            document.body.style.overflow = 'hidden';
         } else {
-            // Get the scroll position from the body's top position
-            const scrollY = document.body.style.top;
-
-            // Reset body position
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-
-            // Restore scroll position
-            if (scrollY) {
-                window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
-            }
+            // Restore scrolling without affecting position
+            document.body.style.overflow = '';
         }
 
         return () => {
-            // Clean up
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
+            document.body.style.overflow = '';
         };
     }, [mobileMenuOpen]);
 
@@ -418,23 +400,25 @@ export function Navbar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-[999]" // Increased z-index
+                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-[9999]" // Higher z-index
                         style={{
                             position: 'fixed',
                             top: 0,
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            height: '100vh',
+                            height: '100dvh', // Use dynamic viewport height
                             width: '100vw',
-                            overscrollBehavior: 'none', // Prevent scroll chaining
-                            touchAction: 'none', // Disable browser handling of touch events
-                            overflow: 'auto' // Allow scrolling within the menu itself
+                            overscrollBehavior: 'contain',
+                            touchAction: 'pan-y',
+                            overflow: 'auto',
+                            display: 'flex', // Use flexbox for better layout
+                            flexDirection: 'column'
                         }}
                     >
-                        {/* Floating close button - increase z-index */}
+                        {/* Floating close button */}
                         <motion.button
-                            className="fixed top-6 right-6 p-2 rounded-full bg-slate-50 dark:bg-slate-800 shadow-md dark:shadow-slate-900/40 text-slate-600 dark:text-slate-400 z-[1000]"
+                            className="fixed top-4 right-4 p-2 rounded-full bg-slate-50 dark:bg-slate-800 shadow-md dark:shadow-slate-900/40 text-slate-600 dark:text-slate-400 z-[10000]" // Even higher z-index
                             onClick={closeMobileMenu}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{
@@ -454,17 +438,15 @@ export function Navbar() {
                             <X className="h-5 w-5" />
                         </motion.button>
 
-                        {/* Rest of your mobile menu content */}
+                        {/* Content div - make it use flex layout */}
                         <motion.div
                             variants={menuVariants}
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="min-h-full flex flex-col pt-24 px-6 pb-20" // Adjusted padding
+                            className="flex-1 flex flex-col pt-16 px-4 pb-16 overflow-auto"
                             style={{
-                                paddingBottom: '80px',
-                                position: 'relative', // Make sure this is positioned
-                                zIndex: 1 // Lower than the close button
+                                WebkitOverflowScrolling: 'touch' // For smooth scrolling on iOS
                             }}
                         >
                             {/* Logo in mobile menu */}

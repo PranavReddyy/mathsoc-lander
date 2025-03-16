@@ -7,7 +7,7 @@ import { MathBackground } from "@/components/MathBackground";
 import { Analytics } from "@vercel/analytics/react";
 import { LoadingScreen } from '@/components/laoding-screen';
 
-
+// Font definitions
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,7 +28,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} scroll-smooth`}
+    >
       <body>
         <ThemeProvider
           attribute="class"
