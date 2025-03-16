@@ -96,9 +96,19 @@ export function PageFooter() {
             {/* Copyright section */}
             <div className="border-t border-slate-200 dark:border-slate-800">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-                    <p className="text-xs text-muted-foreground text-center sm:text-left">
-                        © 2025 MathSoc, Mahindra University. All rights reserved.
-                    </p>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
+                        <p className="text-xs text-muted-foreground">
+                            © 2025 MathSoc, Mahindra University. All rights reserved.
+                        </p>
+                        <a
+                            href="https://github.com/RogueArt/mathsoc"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors"
+                        >
+                            View Source
+                        </a>
+                    </div>
                     <p className="text-xs text-muted-foreground text-center sm:text-right">
                         {`Made with <3 by the MathSoc`}
                     </p>
