@@ -49,10 +49,19 @@ export function Navbar() {
     // Prevent body scrolling when mobile menu is open
     useEffect(() => {
         if (mobileMenuOpen) {
+            // When menu opens, prevent body scrolling but allow menu scrolling
             document.body.style.overflow = 'hidden';
+
+            // Add initial transition delay to ensure smooth animation
+            setTimeout(() => {
+                const container = document.querySelector('.mobile-menu-container');
+                if (container) container.style.overflowY = 'auto';
+            }, 300);
         } else {
+            // Reset when menu closes
             document.body.style.overflow = '';
         }
+
         return () => {
             document.body.style.overflow = '';
         };
@@ -96,6 +105,9 @@ export function Navbar() {
 
     const closeMobileMenu = () => {
         setMobileMenuOpen(false);
+        setMobileSubMenuOpen({
+            activities: false
+        });
     };
 
     // Animation variants for mobile menu
@@ -381,6 +393,7 @@ export function Navbar() {
                                 )}
                             </AnimatePresence>
                         </Button>
+
                     </motion.div>
                 </div>
             </div>
@@ -393,8 +406,17 @@ export function Navbar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-[99999]"
-                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, height: '100vh', width: '100vw' }}
+                        className="fixed inset-0 bg-white dark:bg-slate-950/98 z-[99999] overflow-y-auto"
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: '100%',
+                            width: '100%',
+                            overscrollBehavior: 'contain'
+                        }}
                     >
                         {/* Floating close button */}
                         <motion.button
@@ -422,7 +444,8 @@ export function Navbar() {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="h-full flex flex-col pt-24 px-6 overflow-y-auto z-[9999]"
+                            className="min-h-full flex flex-col pt-24 px-6 pb-10 overflow-visible"
+                            style={{ paddingBottom: '80px' }}
                         >
                             {/* Logo in mobile menu */}
                             <motion.div variants={itemVariants} className="mb-10">
@@ -522,11 +545,8 @@ export function Navbar() {
                                     <AnimatePresence>
                                         {mobileSubMenuOpen.activities && (
                                             <motion.div
-                                                variants={subMenuVariants}
-                                                initial="hidden"
-                                                animate="visible"
-                                                exit="exit"
-                                                className="overflow-hidden"
+                                                variants={itemVariants}
+                                                className="mt-auto mb-8 pt-6 text-center sticky bottom-5"
                                             >
                                                 <div className="pl-6 pb-3 space-y-2">
                                                     <Link
@@ -597,6 +617,6 @@ export function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
